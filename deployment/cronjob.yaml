@@ -10,7 +10,7 @@ spec:
         spec:
           containers:
           - name: float-container
-            image: parse_floats:latest
+            image: docker push artifacts.tekuro.io/your-repo/floats-cronjob:latest
             env:
               - name: INFLUXDB_ORG
                 valueFrom:

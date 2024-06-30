@@ -5,11 +5,11 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
-COPY requirements.txt /app/
+COPY src/requirements.txt /app/
 
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
 COPY . /app/
 
-CMD ["python", "parse_floats.py"]
+CMD ["python", "src/parse_floats.py"]
