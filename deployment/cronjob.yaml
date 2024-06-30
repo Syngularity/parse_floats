@@ -2,6 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: floats-cronjob
+  namespace: stock
 spec:
   schedule: "0 8 * * *"
   jobTemplate:
