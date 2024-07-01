@@ -5,7 +5,9 @@ import os
 import concurrent.futures
 import time
 from datetime import datetime
-from influxdb_client_3 import InfluxDBClient3, Point
+import influxdb_client
+from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
 import logging
 import json
 
@@ -27,12 +29,13 @@ current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 # InfluxDB setup
 org = os.getenv("INFLUXDB_ORG")
-host = os.getenv("INFLUXDB_HOST")
+url = os.getenv("INFLUXDB_URL")
 token = os.getenv("INFLUXDB_TOKEN")
-db = os.getenv("INFLUXDB_DB")
+bucket = os.getenv("INFLUXDB_BUCKET")
 
 
-client = InfluxDBClient3(host=host, token=token, org=org)
+client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
+write_api = client.write_api(write_options=SYNCHRONOUS)
 
 def fetch_float_shares(ticker):
     sanitized_ticker = ticker.replace(" ", "")
@@ -47,32 +50,33 @@ def fetch_float_shares(ticker):
                     .tag("ticker", sanitized_ticker) \
                     .field("shares", float_shares) \
                     .time(current_date)
-                client.write(database=db, org=org, record=point)
+                write_api.write(bucket=bucket, org=org, record=point)
+
             else:
                 point = Point("float_failure") \
                     .tag("ticker", sanitized_ticker) \
                     .field("reason", "Float shares data not found") \
                     .time(current_date)
-                client.write(database=db, org=org, record=point)
+                write_api.write(bucket=bucket, org=org, record=point)
         except requests.exceptions.HTTPError as e:
             reason = 'Client 404 error' if e.response.status_code == 404 else str(e)
             point = Point("fetch_failure") \
                 .tag("ticker", sanitized_ticker) \
                 .field("reason", reason) \
                 .time(current_date)
-            client.write(database=db, org=org, record=point)
+            write_api.write(bucket=bucket, org=org, record=point)
         except json.decoder.JSONDecodeError as e:
             point = Point("fetch_failure") \
                 .tag("ticker", sanitized_ticker) \
                 .field("reason", str(e)) \
                 .time(current_date)
-            client.write(database=db, org=org, record=point)
+            write_api.write(bucket=bucket, org=org, record=point)
         except Exception as e:
             point = Point("fetch_failure") \
                 .tag("ticker", sanitized_ticker) \
                 .field("reason", str(e)) \
                 .time(current_date)
-            client.write(database=db, org=org, record=point)
+            write_api.write(bucket=bucket, org=org, record=point)
     else:
         logging.debug(f"Invalid ticker symbol found and skipped: {sanitized_ticker}")
 
@@ -96,7 +100,7 @@ summary_point = Point("float_add_result") \
     .field("num_floats_added", len(tickers)) \
     .field("runtime", runtime) \
     .time(current_datetime)
-client.write(database=db, org=org, record=summary_point)
+write_api.write(bucket=bucket, org=org, record=point)
 
 client.close()
 logging.info(f"Float Processing Completed in {runtime}")

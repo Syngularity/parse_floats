@@ -18,7 +18,7 @@ spec:
                   secretKeyRef:
                     name: influxdb-secrets
                     key: org
-              - name: INFLUXDB_HOST
+              - name: INFLUXDB_URL
                 valueFrom:
                   secretKeyRef:
                     name: influxdb-secrets
@@ -28,7 +28,7 @@ spec:
                   secretKeyRef:
                     name: influxdb-secrets
                     key: token
-              - name: INFLUXDB_DB
+              - name: INFLUXDB_BUCKET
                 valueFrom:
                   secretKeyRef:
                     name: influxdb-secrets
