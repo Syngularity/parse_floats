@@ -22,7 +22,7 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: influxdb-secrets
-                    key: host
+                    key: url
               - name: INFLUXDB_TOKEN
                 valueFrom:
                   secretKeyRef:
@@ -32,7 +32,7 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: influxdb-secrets
-                    key: db
+                    key: bucket
           restartPolicy: OnFailure
           imagePullSecrets:
             - name: regcred

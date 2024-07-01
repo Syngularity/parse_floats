@@ -100,7 +100,7 @@ summary_point = Point("float_add_result") \
     .field("num_floats_added", len(tickers)) \
     .field("runtime", runtime) \
     .time(current_datetime)
-write_api.write(bucket=bucket, org=org, record=point)
+write_api.write(bucket=bucket, org=org, record=summary_point)
 
 client.close()
 logging.info(f"Float Processing Completed in {runtime}")
