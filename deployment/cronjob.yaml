@@ -4,14 +4,14 @@ metadata:
   name: floats-cronjob
   namespace: stock
 spec:
-  schedule: "0 8 * * *"
+  schedule: "0 7 * * *"
   jobTemplate:
     spec:
       template:
         spec:
           containers:
           - name: float-container
-            image: docker push artifacts.tekuro.io/your-repo/floats-cronjob:latest
+            image: artifacts.tekuro.io/floats-cronjob:latest
             env:
               - name: INFLUXDB_ORG
                 valueFrom:
@@ -34,3 +34,5 @@ spec:
                     name: influxdb-secrets
                     key: db
           restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: regcred
